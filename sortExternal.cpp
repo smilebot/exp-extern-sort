@@ -123,6 +123,7 @@ void splitIntoChunks(string fileName, vector<string> &fileNames) {
 // This can be found using `sysctl kern.maxfiles` (mac) and `ulimit -a` for ubuntu
 // If you are working with a small RAM you will be able to open fewer files.
 
+// WIP: Doesn't consider memory implications
 
 void combineChunks(vector<string> &fileNames) {
     // initializing;
