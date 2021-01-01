@@ -11,6 +11,9 @@ using namespace std;
 int MAX_BUFF = 10000000;
 const int NUM_ELEMENTS = MAX_BUFF/32;
 
+float TOTAL_NUMBERS = 0;
+float COMPLETED = 0;
+
 ifstream inputStream;
 
 void swap(vector<int> &vec, int left, int right) {
@@ -69,6 +72,7 @@ void splitIntoChunks(string fileName, vector<string> &fileNames) {
     int num;
 
     while(inputStream >> num) {
+        TOTAL_NUMBERS++;
         chunkVector.push_back(num);
         if(chunkVector.size() == NUM_ELEMENTS) {
             
@@ -152,20 +156,37 @@ void combineChunks(vector<string> &fileNames) {
 
     ofstream out("output.txt");
 
+
+    int maxPerFile = NUM_ELEMENTS / chunkedFilePointers.size();
+
+
+
     for(ifstream *ptr: chunkedFilePointers) {
         int num;
-        while(*ptr >> num) {
+        int count = 0;
+        while(*ptr >> num && count < maxPerFile) {
             FileStreamWithPriority *temp = new FileStreamWithPriority;
             temp->file = ptr;
             temp->priority = num;
             pq.push(temp);
+            count++;
         }
-        
     }
 
+    cout << " pq size is " << pq.size()*32 << " maxperfile is " << maxPerFile << " " <<   chunkedFilePointers.size() <<  endl;
+
     while(pq.size()) {
+        FileStreamWithPriority *top = pq.top();
         out << pq.top()->priority <<endl;
+        COMPLETED++;
+        float comp = (COMPLETED/TOTAL_NUMBERS)*100;
+        // cout << comp  << " Percent Done" <<endl;
         pq.pop();
+        int num;
+        if(*top->file >> num) {
+            top->priority = num;
+            pq.push(top);
+        }
     }
 
     for(string fileName: fileNames) {
@@ -184,6 +205,8 @@ int main() {
         inputFiles.push_back(file);
     }
     cout << "Sorting through the following files :" << endl;
+
+    
     for(string x: inputFiles) {
         cout << x << endl;
     }
@@ -195,7 +218,8 @@ int main() {
 
     // TODO: Change from vec to storing into a folder
     vector<string> fileNames;
-    
+    const clock_t begin_time = clock();
+
     for(int i = 0; i < inputFiles.size(); i++){
         cout << "Breaking " << inputFiles[i] << " into chunks" << endl;
         splitIntoChunks(inputFiles[i], fileNames);
@@ -203,7 +227,10 @@ int main() {
 
     cout << "Combining chunks" << endl;
 
+    cout << "Total Number of Ints to combine " << TOTAL_NUMBERS << endl;
+
     combineChunks(fileNames);
 
+    cout << "Total time taken :" << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
     return 0;
 }
