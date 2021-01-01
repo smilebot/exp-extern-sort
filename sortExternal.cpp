@@ -122,14 +122,27 @@ void splitIntoChunks(string fileName, vector<string> &fileNames) {
 // There is a limit to how many files we can have open on my computer it is 98304 files.
 // This can be found using `sysctl kern.maxfiles` (mac) and `ulimit -a` for ubuntu
 // If you are working with a small RAM you will be able to open fewer files.
-
 // WIP: Doesn't consider memory implications
+
+struct FileStreamWithPriority
+{
+    int priority;
+    ifstream* file;
+};
+
+struct CompareVal {
+    bool operator()(const FileStreamWithPriority* lhs, const FileStreamWithPriority* rhs) {
+        return lhs->priority > rhs->priority;
+    }
+};
+
+
 
 void combineChunks(vector<string> &fileNames) {
     // initializing;
     vector<ifstream*> chunkedFilePointers;
     
-    priority_queue <int, vector<int>, greater<int> > pq;
+    priority_queue <FileStreamWithPriority*, vector<FileStreamWithPriority*>, CompareVal > pq;
 
     for(int i = 0; i<fileNames.size(); i++) {
         ifstream *n = new ifstream;
@@ -142,13 +155,16 @@ void combineChunks(vector<string> &fileNames) {
     for(ifstream *ptr: chunkedFilePointers) {
         int num;
         while(*ptr >> num) {
-            pq.push(num);
+            FileStreamWithPriority *temp = new FileStreamWithPriority;
+            temp->file = ptr;
+            temp->priority = num;
+            pq.push(temp);
         }
-        delete ptr;
+        
     }
 
     while(pq.size()) {
-        out << pq.top() <<endl;
+        out << pq.top()->priority <<endl;
         pq.pop();
     }
 
