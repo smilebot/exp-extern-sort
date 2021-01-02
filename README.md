@@ -15,3 +15,8 @@ Learning objectives:
 
 
 Learnings:
+
+Current Metrics:
+File size: 137mb
+Buffer size: 10mb
+Time: 225.553 seconds
