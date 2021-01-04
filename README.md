@@ -18,5 +18,5 @@ Learnings:
 
 Current Metrics:
 File size: 137mb
-Buffer size: 10mb
+Buffer size: 1mb
 Time: 225.553 seconds
